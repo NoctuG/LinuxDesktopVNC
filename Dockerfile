@@ -29,28 +29,28 @@ RUN curl -k -sSL -o noVNC.tar.gz https://github.com/novnc/noVNC/archive/refs/tag
     rm noVNC.tar.gz
 
 # Create a non-root user
-RUN useradd -m user
+RUN useradd -m $USER
 
 # Set non-root user's HOME environment variable
-ENV HOME /home/user
+ENV HOME /home/$USER
 
 # Set up VNC
 RUN mkdir -p $HOME/.vnc && \
     openssl rand -base64 12 | tr -d '\n' | vncpasswd -f > $HOME/.vnc/passwd && \
     echo '/bin/env  MOZ_FAKE_NO_SANDBOX=1  dbus-launch xfce4-session'  > $HOME/.vnc/xstartup && \
-    touch ~/.Xauthority
+    touch $HOME/.Xauthority && \
     chmod 600 $HOME/.vnc/passwd && \
     chmod 755 $HOME/.vnc/xstartup && \
-    chown -R user:user $HOME/.vnc
+    chown -R $USER:$USER $HOME/.vnc
 
 # Switch to the non-root user
-USER user
+USER $USER
 
 # Set up noVNC
 RUN echo "cd /noVNC" >> $HOME/.vnc/xstartup && \
-    echo $DISPLAY
-    export DISPLAY=:0
-    echo "./utils/launch.sh  --vnc 0.0.0.0:${VNC_PORT} --listen ${NOVNC_PORT}" >> $HOME/.vnc/xstartup
+    echo $DISPLAY >> $HOME/.vnc/xstartup && \
+    echo "export DISPLAY=:0" >> $HOME/.vnc/xstartup && \
+    echo "./utils/launch.sh --vnc 0.0.0.0:${VNC_PORT} --listen ${NOVNC_PORT}" >> $HOME/.vnc/xstartup
 
 # Switch back to root to set root password
 USER root
@@ -65,4 +65,4 @@ CMD root_password=$(openssl rand -base64 12) && \
     echo "user:${user_password}" | chpasswd && \
     echo "Root password: ${root_password}" && \
     echo "User password: ${user_password}" && \
-    su -c "vncserver :$VNC_PORT -geometry $VNC_GEOMETRY && bash $HOME/.vnc/xstartup" user
+    su -c "vncserver :$VNC_PORT -geometry $VNC_GEOMETRY && bash $HOME/.vnc/xstartup" $USER
