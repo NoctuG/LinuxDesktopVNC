@@ -17,7 +17,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     rm -rf /var/lib/apt/lists/*
 
 # Install necessary fonts for VNC
-RUN apt-get update && apt-get install -y xfonts-base xfonts-75dpi
+RUN apt-get update && apt-get install -y xfonts-base xfonts-75dpi && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create a symlink for /bin/env
 RUN ln -s /usr/bin/env /bin/env
@@ -58,11 +59,16 @@ USER root
 # Expose the noVNC port
 EXPOSE $NOVNC_PORT
 
-# Start VNC Server and noVNC on container startup
-CMD root_password=$(openssl rand -base64 12) && \
-    user_password=$(openssl rand -base64 12) && \
-    echo "root:${root_password}" | chpasswd && \
-    echo "user:${user_password}" | chpasswd && \
-    echo "Root password: ${root_password}" && \
-    echo "User password: ${user_password}" && \
-    su -c "vncserver :$VNC_PORT -geometry $VNC_GEOMETRY && bash $HOME/.vnc/xstartup" $USER
+# Create launch.sh to start VNC Server and noVNC on container startup
+RUN echo "#!/bin/bash" > /launch.sh && \
+    echo "root_password=\$(openssl rand -base64 12)" >> /launch.sh && \
+    echo "user_password=\$(openssl rand -base64 12)" >> /launch.sh && \
+    echo "echo \"root:\${root_password}\" | chpasswd" >> /launch.sh && \
+    echo "echo \"user:\${user_password}\" | chpasswd" >> /launch.sh && \
+    echo "echo \"Root password: \${root_password}\"" >> /launch.sh && \
+    echo "echo \"User password: \${user_password}\"" >> /launch.sh && \
+    echo "su -c \"vncserver :$VNC_PORT -geometry $VNC_GEOMETRY\" $USER &" >> /launch.sh && \
+    echo "su -c \"bash $HOME/.vnc/xstartup\" $USER &" >> /launch.sh && \
+    chmod +x /launch.sh
+
+CMD ["/launch.sh"]
