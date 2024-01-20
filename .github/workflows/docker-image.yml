@@ -14,11 +14,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Get the date
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y%m%d%H%M')"
     - name: Build the Docker image
-      run: docker build --file Dockerfile -t awert567/linux-rdp:latest -t awert567/linux-rdp:$(date +'%Y%m%d%H%M') .
+      run: docker build --file Dockerfile -t awert567/linux-rdp:latest -t awert567/linux-rdp:${{ steps.date.outputs.date }} .
     - name: Log in to Docker Hub
       run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
     - name: Push the Docker image
       run: |
         docker push awert567/linux-rdp:latest
-        docker push awert567/linux-rdp:$(date +'%Y%m%d%H%M')
+        docker push awert567/linux-rdp:${{ steps.date.outputs.date }}
