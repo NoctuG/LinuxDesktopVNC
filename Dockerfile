@@ -23,8 +23,10 @@ RUN apt-get update && apt-get install -y xfonts-base xfonts-75dpi
 RUN ln -s /usr/bin/env /bin/env
 
 # Download and extract noVNC
-RUN curl -k -sSL -o noVNC.tar.gz https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz
-RUN tar xzf noVNC.tar.gz -C / && rm noVNC.tar.gz && mv /noVNC-${NOVNC_VERSION} /noVNC
+RUN curl -k -sSL -o noVNC.tar.gz https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz && \
+    tar xzf noVNC.tar.gz -C / && \
+    ls / && \
+    rm noVNC.tar.gz
 
 # Create a non-root user
 RUN useradd -m user
