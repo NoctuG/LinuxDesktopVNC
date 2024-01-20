@@ -47,30 +47,35 @@ RUN mkdir -p $HOME/.vnc && \
 # Switch to the non-root user
 USER $USER
 
+# Assuming that xstartup is copied from somewhere else and is located at $HOME/.vnc/xstartup
+RUN sed -i '/\.\/utils\/launch\.sh/d' $HOME/.vnc/xstartup
+
 # Set up noVNC
 RUN echo "cd /noVNC" >> $HOME/.vnc/xstartup && \
     echo $DISPLAY >> $HOME/.vnc/xstartup && \
     echo "export DISPLAY=:0" >> $HOME/.vnc/xstartup && \
     echo "./utils/launch.sh --vnc 0.0.0.0:${VNC_PORT} --listen ${NOVNC_PORT}" >> $HOME/.vnc/xstartup
 
-# Switch back to root to set root password
+# Expose both VNC and noVNC ports
+EXPOSE $VNC_PORT $NOVNC_PORT
+
+# Install a web server (nginx) to serve the noVNC web page
 USER root
+RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
 
-# Expose the noVNC port
-EXPOSE $NOVNC_PORT
+# Create nginx configuration to serve noVNC
+COPY nginx.conf /etc/nginx/sites-available/default
 
-# Create launch.sh to start VNC Server and noVNC on container startup
 # Create launch.sh to start VNC Server and noVNC on container startup
 RUN echo "#!/bin/bash" > /launch.sh && \
     echo "root_password=\$(openssl rand -base64 12)" >> /launch.sh && \
     echo "user_password=\$(openssl rand -base64 12)" >> /launch.sh && \
     echo "echo \"root:\${root_password}\" | chpasswd" >> /launch.sh && \
     echo "echo \"user:\${user_password}\" | chpasswd" >> /launch.sh && \
-    echo "echo \"Root password: \${root_password}\"" >> /launch.sh && \
-    echo "echo \"User password: \${user_password}\"" >> /launch.sh && \
     echo "su -c \"vncserver :$VNC_PORT -geometry $VNC_GEOMETRY\" $USER &" >> /launch.sh && \
     echo "su -c \"bash $HOME/.vnc/xstartup\" $USER &" >> /launch.sh && \
-    echo "tail -f /dev/null" >> /launch.sh  # Keep the script running
+    echo "nginx -g 'daemon off;'" >> /launch.sh  # Start nginx in the foreground
+
 RUN chmod +x /launch.sh
 
 CMD ["/launch.sh"]
