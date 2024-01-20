@@ -51,8 +51,8 @@ RUN sed -i '/\.\/utils\/launch\.sh/d' $HOME/.vnc/xstartup
 
 # Set up noVNC
 RUN echo "export DISPLAY=:0" >> $HOME/.vnc/xstartup && \
-    echo "/noVNC/utils/launch.sh --vnc 0.0.0.0:${VNC_PORT} --listen ${NOVNC_PORT}" >> $HOME/.vnc/xstartup
-
+    echo "/launch.sh --vnc 0.0.0.0:${VNC_PORT} --listen ${NOVNC_PORT}" >> $HOME/.vnc/xstartup
+    
 # Expose both VNC and noVNC ports
 EXPOSE $VNC_PORT $NOVNC_PORT
 
