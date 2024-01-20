@@ -6,6 +6,7 @@ ENV NOVNC_VERSION v1.4.0
 ENV VNC_GEOMETRY 1360x768
 ENV VNC_PORT 2000
 ENV NOVNC_PORT 8900
+ENV USER user
 
 # Update and install necessary packages
 RUN apt-get update && apt-get install -y ca-certificates
@@ -42,7 +43,6 @@ RUN echo "cd /noVNC-${NOVNC_VERSION}" >> $HOME/.vnc/xstartup && \
 
 # Switch back to root to set root password
 USER root
-RUN RUN echo "root:$(openssl rand -base64 12)" | chpasswd
 
 # Expose the noVNC port
 EXPOSE $NOVNC_PORT
@@ -51,5 +51,11 @@ EXPOSE $NOVNC_PORT
 USER user
 
 # Start VNC Server and noVNC on container startup
-CMD vncserver :$VNC_PORT -geometry $VNC_GEOMETRY && \
-    while true; do bash $HOME/.vnc/xstartup; sleep 1; done
+CMD root_password=$(openssl rand -base64 12) && \
+    user_password=$(openssl rand -base64 12) && \
+    echo "root:${root_password}" | chpasswd && \
+    echo "user:${user_password}" | chpasswd && \
+    echo "Root password: ${root_password}" && \
+    echo "User password: ${user_password}" && \
+    vncserver :$VNC_PORT -geometry $VNC_GEOMETRY && \
+    bash $HOME/.vnc/xstartup
