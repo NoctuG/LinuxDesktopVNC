@@ -47,9 +47,6 @@ USER root
 # Expose the noVNC port
 EXPOSE $NOVNC_PORT
 
-# Switch back to non-root user
-USER user
-
 # Start VNC Server and noVNC on container startup
 CMD root_password=$(openssl rand -base64 12) && \
     user_password=$(openssl rand -base64 12) && \
@@ -57,5 +54,4 @@ CMD root_password=$(openssl rand -base64 12) && \
     echo "user:${user_password}" | chpasswd && \
     echo "Root password: ${root_password}" && \
     echo "User password: ${user_password}" && \
-    vncserver :$VNC_PORT -geometry $VNC_GEOMETRY && \
-    bash $HOME/.vnc/xstartup
+    su -c "vncserver :$VNC_PORT -geometry $VNC_GEOMETRY && bash $HOME/.vnc/xstartup" user
