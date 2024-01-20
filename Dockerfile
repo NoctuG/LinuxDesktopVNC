@@ -16,6 +16,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     xfce4-terminal tightvncserver wget && \
     rm -rf /var/lib/apt/lists/*
 
+# Install necessary fonts for VNC
+RUN apt-get update && apt-get install -y xfonts-base xfonts-75dpi
+
 # Download and extract noVNC
 RUN curl -k -sSL -o noVNC.tar.gz https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz
 RUN tar xzf noVNC.tar.gz -C / && rm noVNC.tar.gz
