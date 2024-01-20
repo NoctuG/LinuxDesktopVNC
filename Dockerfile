@@ -69,6 +69,7 @@ RUN echo "#!/bin/bash" > /launch.sh && \
     echo "echo \"User password: \${user_password}\"" >> /launch.sh && \
     echo "su -c \"vncserver :$VNC_PORT -geometry $VNC_GEOMETRY\" $USER &" >> /launch.sh && \
     echo "su -c \"bash $HOME/.vnc/xstartup\" $USER &" >> /launch.sh && \
+    echo "tail -f /dev/null" >> /launch.sh && \  # Keep the script running
     chmod +x /launch.sh
 
 CMD ["/launch.sh"]
