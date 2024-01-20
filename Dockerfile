@@ -23,7 +23,6 @@ RUN apt-get update && apt-get install -y xfonts-base xfonts-75dpi
 RUN ln -s /usr/bin/env /bin/env
 
 # Download and extract noVNC
-# Download and extract noVNC
 RUN curl -k -sSL -o noVNC.tar.gz https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz && \
     tar xzf noVNC.tar.gz -C / && \
     mv /noVNC-1.4.0 /noVNC && \
@@ -39,6 +38,7 @@ ENV HOME /home/user
 RUN mkdir -p $HOME/.vnc && \
     openssl rand -base64 12 | tr -d '\n' | vncpasswd -f > $HOME/.vnc/passwd && \
     echo '/bin/env  MOZ_FAKE_NO_SANDBOX=1  dbus-launch xfce4-session'  > $HOME/.vnc/xstartup && \
+    touch ~/.Xauthority
     chmod 600 $HOME/.vnc/passwd && \
     chmod 755 $HOME/.vnc/xstartup && \
     chown -R user:user $HOME/.vnc
@@ -48,6 +48,8 @@ USER user
 
 # Set up noVNC
 RUN echo "cd /noVNC" >> $HOME/.vnc/xstartup && \
+    echo $DISPLAY
+    export DISPLAY=:0
     echo "./utils/launch.sh  --vnc 0.0.0.0:${VNC_PORT} --listen ${NOVNC_PORT}" >> $HOME/.vnc/xstartup
 
 # Switch back to root to set root password
