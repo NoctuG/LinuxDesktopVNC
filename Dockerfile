@@ -19,9 +19,12 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
 # Install necessary fonts for VNC
 RUN apt-get update && apt-get install -y xfonts-base xfonts-75dpi
 
+# Create a symlink for /bin/env
+RUN ln -s /usr/bin/env /bin/env
+
 # Download and extract noVNC
 RUN curl -k -sSL -o noVNC.tar.gz https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz
-RUN tar xzf noVNC.tar.gz -C / && rm noVNC.tar.gz
+RUN tar xzf noVNC.tar.gz -C / && rm noVNC.tar.gz && mv /noVNC-${NOVNC_VERSION} /noVNC
 
 # Create a non-root user
 RUN useradd -m user
@@ -41,7 +44,7 @@ RUN mkdir -p $HOME/.vnc && \
 USER user
 
 # Set up noVNC
-RUN echo "cd /noVNC-${NOVNC_VERSION}" >> $HOME/.vnc/xstartup && \
+RUN echo "cd /noVNC" >> $HOME/.vnc/xstartup && \
     echo "./utils/launch.sh  --vnc 0.0.0.0:${VNC_PORT} --listen ${NOVNC_PORT}" >> $HOME/.vnc/xstartup
 
 # Switch back to root to set root password
