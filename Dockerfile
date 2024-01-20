@@ -60,6 +60,7 @@ USER root
 EXPOSE $NOVNC_PORT
 
 # Create launch.sh to start VNC Server and noVNC on container startup
+# Create launch.sh to start VNC Server and noVNC on container startup
 RUN echo "#!/bin/bash" > /launch.sh && \
     echo "root_password=\$(openssl rand -base64 12)" >> /launch.sh && \
     echo "user_password=\$(openssl rand -base64 12)" >> /launch.sh && \
@@ -69,7 +70,7 @@ RUN echo "#!/bin/bash" > /launch.sh && \
     echo "echo \"User password: \${user_password}\"" >> /launch.sh && \
     echo "su -c \"vncserver :$VNC_PORT -geometry $VNC_GEOMETRY\" $USER &" >> /launch.sh && \
     echo "su -c \"bash $HOME/.vnc/xstartup\" $USER &" >> /launch.sh && \
-    echo "tail -f /dev/null" >> /launch.sh && \  # Keep the script running
-    chmod +x /launch.sh
+    echo "tail -f /dev/null" >> /launch.sh  # Keep the script running
+RUN chmod +x /launch.sh
 
 CMD ["/launch.sh"]
