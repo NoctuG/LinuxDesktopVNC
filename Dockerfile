@@ -38,7 +38,7 @@ USER user
 
 # Set up noVNC
 RUN echo "cd /noVNC-${NOVNC_VERSION}" >> $HOME/.vnc/xstartup && \
-    echo "./utils/launch.sh  --vnc localhost:${VNC_PORT} --listen ${NOVNC_PORT}" >> $HOME/.vnc/xstartup
+    echo "./utils/launch.sh  --vnc 0.0.0.0:${VNC_PORT} --listen ${NOVNC_PORT}" >> $HOME/.vnc/xstartup
 
 # Switch back to root to set root password
 USER root
@@ -52,4 +52,4 @@ USER user
 
 # Start VNC Server and noVNC on container startup
 CMD vncserver :$VNC_PORT -geometry $VNC_GEOMETRY && \
-    bash $HOME/.vnc/xstartup
+    while true; do bash $HOME/.vnc/xstartup; sleep 1; done
