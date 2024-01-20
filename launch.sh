@@ -7,4 +7,4 @@ vncserver :1 -geometry 1360x768
 startxfce4 &
 
 # Start noVNC
-/noVNC/utils/launch.sh --vnc localhost:5901
+/noVNC/utils/launch.sh --vnc 0.0.0.0::8900
