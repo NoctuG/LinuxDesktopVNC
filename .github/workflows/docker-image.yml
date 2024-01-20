@@ -15,8 +15,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build --file Dockerfile -t awert567/linux-rdp:latest .
+      run: docker build --file Dockerfile -t awert567/linux-rdp:latest -t awert567/linux-rdp:$(date +'%Y%m%d%H%M') .
     - name: Log in to Docker Hub
       run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
     - name: Push the Docker image
-      run: docker push awert567/linux-rdp:latest
+      run: |
+        docker push awert567/linux-rdp:latest
+        docker push awert567/linux-rdp:$(date +'%Y%m%d%H%M')
