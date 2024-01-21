@@ -57,7 +57,7 @@ RUN useradd -m $USER && echo "$USER:$USER" | chpasswd && adduser $USER sudo
 # Set up VNC
 USER root
 RUN mkdir -p $HOME/.vnc \
-    && echo -n "P!Y!5Y9]~>%kipb33Zr_" | vncpasswd -f > $HOME/.vnc/passwd \
+    && echo -n "vv3Wjcj1j889qnzkZya3qV3pFa1xvh" | vncpasswd -f > $HOME/.vnc/passwd \
     && echo '/bin/env MOZ_FAKE_NO_SANDBOX=1 dbus-launch xfce4-session' > $HOME/.vnc/xstartup \
     && touch $HOME/.Xauthority \
     && chmod 600 $HOME/.vnc/passwd \
