@@ -1,4 +1,4 @@
-# LinuxRDP 使用指南
+# LinuxDesktopVNC 使用指南
 
 这个Dockerfile用于创建一个带有VNC和noVNC的Docker镜像，以便于在Web浏览器中远程访问虚拟桌面。以下是如何使用这个Dockerfile的步骤。
 
