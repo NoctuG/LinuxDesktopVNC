@@ -1,0 +1,36 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag my-image:$(date +%s)
+
+    - name: Run the Docker image
+      run: >-
+        docker run -d -p 8900:8900 --name my-container 
+        -e NOVNC_VERSION=v1.4.0 
+        -e VNC_GEOMETRY=1360x768 
+        -e VNC_PORT=2000 
+        -e NOVNC_PORT=8900 
+        -e USER=user 
+        -e HOME=/home/user 
+        -e DISPLAY=:0 
+        my-image:$(date +%s)
+
+    - name: Wait for a while
+      run: sleep 30s
+
+    - name: Show Docker logs
+      run: docker logs my-container
