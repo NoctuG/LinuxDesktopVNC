@@ -57,7 +57,7 @@ RUN useradd -m $USER && echo "$USER:$USER" | chpasswd && adduser $USER sudo
 # Set up VNC
 USER $USER
 RUN mkdir -p $HOME/.vnc \
-    && openssl rand -base64 16 | tr -d '\n' | vncpasswd -f > $HOME/.vnc/passwd
+    && openssl rand -base64 16 | tr -d '\n' | vncpasswd -f > $HOME/.vnc/passwd \
     && echo '/bin/env MOZ_FAKE_NO_SANDBOX=1 dbus-launch xfce4-session' > $HOME/.vnc/xstartup \
     && touch $HOME/.Xauthority \
     && chmod 600 $HOME/.vnc/passwd \
@@ -79,8 +79,8 @@ COPY nginx.conf /etc/nginx/sites-available/default
 RUN echo "#!/bin/bash" > $HOME/launch.sh \
     && echo "su -l -c 'vncserver :$VNC_PORT -geometry $VNC_GEOMETRY' &" >> $HOME/launch.sh \
     && echo "./utils/novnc_proxy --vnc localhost:$VNC_PORT &" >> $HOME/launch.sh \
-    && echo "nginx -g 'daemon off;'" >> $HOME/launch.sh # Start nginx in the foreground
-
+    && echo "nginx -g 'daemon off;'" >> $HOME/launch.sh \
+    && chmod +x $HOME/launch.sh
 
 # Modify CMD to run launch.sh as root
 CMD ["/home/user/launch.sh"]
