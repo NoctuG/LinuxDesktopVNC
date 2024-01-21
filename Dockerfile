@@ -2,7 +2,7 @@
 FROM debian:bullseye-slim
 
 # Update package lists
-RUN apt-get update
+RUN apt-get update && apt-get upgrade -y
 
 # Set environment variables
 ENV NOVNC_VERSION v1.4.0
@@ -11,6 +11,7 @@ ENV VNC_PORT 2000
 ENV NOVNC_PORT 8900
 ENV USER user
 ENV HOME /home/$USER
+ENV DISPLAY :0
 
 # Install necessary packages
 RUN apt-get install -y --no-install-recommends \
@@ -30,7 +31,9 @@ RUN apt-get install -y --no-install-recommends \
     wget \
     xfonts-base \
     xfonts-75dpi \
-    nginx
+    nginx \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create a symlink for /bin/env
 RUN ln -s /usr/bin/env /bin/env
@@ -56,8 +59,8 @@ RUN mkdir -p $HOME/.vnc \
     && chown $USER:$USER $HOME/.Xauthority
 
 # Set up noVNC
-RUN echo "export DISPLAY=:0" >> $HOME/.vnc/xstartup \
-    && echo "$HOME/launch.sh --vnc 0.0.0.0:${VNC_PORT} --listen ${NOVNC_PORT}" >> $HOME/.vnc/xstartup
+USER root
+RUN echo "export DISPLAY=:0" >> $HOME/.vnc/xstartup
 
 # Expose both VNC and noVNC ports
 EXPOSE $VNC_PORT $NOVNC_PORT
@@ -67,13 +70,7 @@ COPY nginx.conf /etc/nginx/sites-available/default
 
 # Create launch.sh to start VNC Server and noVNC on container startup
 RUN echo "#!/bin/bash" > $HOME/launch.sh \
-    && echo "root_password=\$(openssl rand -base64 12)" >> $HOME/launch.sh \
-    && echo "user_password=\$(openssl rand -base64 12)" >> $HOME/launch.sh \
-    && echo "echo \"root:\${root_password}\" | chpasswd" >> $HOME/launch.sh \
-    && echo "echo \"user:\${user_password}\" | chpasswd" >> $HOME/launch.sh \
     && echo "su -c \"vncserver :$VNC_PORT -geometry $VNC_GEOMETRY\" $USER &" >> $HOME/launch.sh \
     && echo "su -c \"bash $HOME/.vnc/xstartup\" $USER &" >> $HOME/launch.sh \
     && echo "nginx -g 'daemon off;'" >> $HOME/launch.sh # Start nginx in the foreground
-RUN chmod +x $HOME/launch.sh
-
-CMD ["/bin/bash", "$HOME/launch.sh"]
+RUN chmod +x $HOME/launch
