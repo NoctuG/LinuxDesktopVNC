@@ -66,14 +66,14 @@ EXPOSE $VNC_PORT $NOVNC_PORT
 COPY nginx.conf /etc/nginx/sites-available/default
 
 # Create launch.sh to start VNC Server and noVNC on container startup
-RUN echo "#!/bin/bash" > /launch.sh \
-    && echo "root_password=\$(openssl rand -base64 12)" >> /launch.sh \
-    && echo "user_password=\$(openssl rand -base64 12)" >> /launch.sh \
-    && echo "echo \"root:\${root_password}\" | chpasswd" >> /launch.sh \
-    && echo "echo \"user:\${user_password}\" | chpasswd" >> /launch.sh \
-    && echo "su -c \"vncserver :$VNC_PORT -geometry $VNC_GEOMETRY\" $USER &" >> /launch.sh \
-    && echo "su -c \"bash $HOME/.vnc/xstartup\" $USER &" >> /launch.sh \
-    && echo "nginx -g 'daemon off;'" >> /launch.sh # Start nginx in the foreground
-RUN chmod +x /launch.sh
+RUN echo "#!/bin/bash" > $HOME/launch.sh \
+    && echo "root_password=\$(openssl rand -base64 12)" >> $HOME/launch.sh \
+    && echo "user_password=\$(openssl rand -base64 12)" >> $HOME/launch.sh \
+    && echo "echo \"root:\${root_password}\" | chpasswd" >> $HOME/launch.sh \
+    && echo "echo \"user:\${user_password}\" | chpasswd" >> $HOME/launch.sh \
+    && echo "su -c \"vncserver :$VNC_PORT -geometry $VNC_GEOMETRY\" $USER &" >> $HOME/launch.sh \
+    && echo "su -c \"bash $HOME/.vnc/xstartup\" $USER &" >> $HOME/launch.sh \
+    && echo "nginx -g 'daemon off;'" >> $HOME/launch.sh # Start nginx in the foreground
+RUN chmod +x $HOME/launch.sh
 
-CMD ["/bin/bash", "/launch.sh"]
+CMD ["/bin/bash", "$HOME/launch.sh"]
