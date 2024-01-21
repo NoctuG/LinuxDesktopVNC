@@ -72,11 +72,8 @@ COPY nginx.conf /etc/nginx/sites-available/default
 # Create launch.sh to start VNC Server and noVNC on container startup
 RUN echo "#!/bin/bash" > $HOME/launch.sh \
     && echo "sudo -u $USER vncserver :$VNC_PORT -geometry $VNC_GEOMETRY &" >> $HOME/launch.sh \
-    && echo "sudo -u $USER bash $HOME/.vnc/xstartup &" >> $HOME/launch.sh \
     && echo "nginx -g 'daemon off;'" >> $HOME/launch.sh # Start nginx in the foreground
 RUN chmod +x $HOME/launch.sh
 
-# Update $HOME/.vnc/xstartup to include launch.sh
-RUN echo "$HOME/launch.sh --vnc 0.0.0.0:${VNC_PORT} --listen ${NOVNC_PORT}" >> $HOME/.vnc/xstartup
-
-CMD ["/bin/bash", "/home/user/launch.sh"]
+# Modify CMD to run launch.sh as root
+CMD ["sudo", "/home/user/launch.sh"]
