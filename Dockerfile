@@ -12,7 +12,6 @@ ENV NOVNC_PORT 8900
 ENV USER user
 ENV HOME /home/$USER
 ENV DISPLAY :0
-ENV VNC_PASSWORD Pass1234
 
 # Install necessary packages
 RUN apt-get install -y --no-install-recommends \
@@ -35,6 +34,7 @@ RUN apt-get install -y --no-install-recommends \
     xfonts-75dpi \
     nginx \
     sudo \
+    openssl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -56,6 +56,10 @@ RUN git clone https://github.com/novnc/noVNC.git $HOME/utils/noVNC \
 # Create a non-root user
 RUN useradd -m $USER && echo "$USER:$USER" | chpasswd && adduser $USER sudo
 
+# Generate random passwords for VNC and root
+RUN VNC_PASSWORD=$(openssl rand -hex 8) && echo "VNC Password: $VNC_PASSWORD" \
+    && echo root:$VNC_PASSWORD | chpasswd
+
 # Set up VNC
 USER root
 RUN mkdir -p $HOME/.vnc \
@@ -67,7 +71,6 @@ RUN mkdir -p $HOME/.vnc \
     && chown -R $USER:$USER $HOME/.vnc \
     && chown $USER:$USER $HOME/.Xauthority
 USER $USER
-
 
 # Set up noVNC
 USER root
@@ -81,8 +84,9 @@ COPY nginx.conf /etc/nginx/sites-available/default
 
 # Create launch.sh to start VNC Server and noVNC on container startup
 RUN echo "#!/bin/bash" > $HOME/launch.sh \
-    && echo "export VNC_PASSWORD=$VNC_PASSWORD" >> $HOME/launch.sh \
-    && echo "su -l -c 'echo $VNC_PASSWORD | vncpasswd -f > $HOME/.vnc/passwd' &" >> $HOME/launch.sh \
+    && echo "export VNC_PASSWORD=\$(openssl rand -hex 8)" >> $HOME/launch.sh \
+    && echo "echo \"VNC Password: \$VNC_PASSWORD\"" >> $HOME/launch.sh \
+    && echo "su -l -c 'echo \$VNC_PASSWORD | vncpasswd -f > $HOME/.vnc/passwd' &" >> $HOME/launch.sh \
     && echo "su -l -c 'vncserver :$VNC_PORT -geometry $VNC_GEOMETRY' &" >> $HOME/launch.sh \
     && echo "$HOME/utils/novnc_proxy --vnc localhost:$VNC_PORT --web $HOME/utils/noVNC --listen $NOVNC_PORT &" >> $HOME/launch.sh \
     && echo "nginx -g 'daemon off;'" >> $HOME/launch.sh \
