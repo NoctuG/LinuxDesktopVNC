@@ -73,4 +73,9 @@ RUN echo "#!/bin/bash" > $HOME/launch.sh \
     && echo "su -c \"vncserver :$VNC_PORT -geometry $VNC_GEOMETRY\" $USER &" >> $HOME/launch.sh \
     && echo "su -c \"bash $HOME/.vnc/xstartup\" $USER &" >> $HOME/launch.sh \
     && echo "nginx -g 'daemon off;'" >> $HOME/launch.sh # Start nginx in the foreground
-RUN chmod +x $HOME/launch
+RUN chmod +x $HOME/launch.sh
+
+# Update $HOME/.vnc/xstartup to include launch.sh
+RUN echo "$HOME/launch.sh --vnc 0.0.0.0:${VNC_PORT} --listen ${NOVNC_PORT}" >> $HOME/.vnc/xstartup
+
+CMD ["/bin/bash", "/home/user/launch.sh"]
