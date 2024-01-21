@@ -29,6 +29,7 @@ RUN apt-get install -y --no-install-recommends \
     xfce4-terminal \
     tightvncserver \
     wget \
+    expect \
     xfonts-base \
     xfonts-75dpi \
     nginx \
