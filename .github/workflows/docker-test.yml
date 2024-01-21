@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Docker Image Test
 
 on:
   push:
@@ -14,8 +14,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Set up timestamp
+      id: timestamp
+      run: echo "::set-output name=timestamp::$(date +%s)"
+
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image:$(date +%s)
+      run: docker build . --file Dockerfile --tag my-image:${{ steps.timestamp.outputs.timestamp }}
 
     - name: Run the Docker image
       run: >-
@@ -27,7 +31,7 @@ jobs:
         -e USER=user 
         -e HOME=/home/user 
         -e DISPLAY=:0 
-        my-image:$(date +%s)
+        my-image:${{ steps.timestamp.outputs.timestamp }}
 
     - name: Wait for a while
       run: sleep 30s
