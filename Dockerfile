@@ -32,6 +32,7 @@ RUN apt-get install -y --no-install-recommends \
     xfonts-base \
     xfonts-75dpi \
     nginx \
+    sudo \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -45,7 +46,7 @@ RUN curl -k -sSL -o noVNC.tar.gz https://github.com/novnc/noVNC/archive/refs/tag
     && rm noVNC.tar.gz
 
 # Create a non-root user
-RUN useradd -m $USER
+RUN useradd -m $USER && echo "$USER:$USER" | chpasswd && adduser $USER sudo
 
 # Set up VNC
 USER $USER
@@ -70,8 +71,8 @@ COPY nginx.conf /etc/nginx/sites-available/default
 
 # Create launch.sh to start VNC Server and noVNC on container startup
 RUN echo "#!/bin/bash" > $HOME/launch.sh \
-    && echo "su -c \"vncserver :$VNC_PORT -geometry $VNC_GEOMETRY\" $USER &" >> $HOME/launch.sh \
-    && echo "su -c \"bash $HOME/.vnc/xstartup\" $USER &" >> $HOME/launch.sh \
+    && echo "sudo -u $USER vncserver :$VNC_PORT -geometry $VNC_GEOMETRY &" >> $HOME/launch.sh \
+    && echo "sudo -u $USER bash $HOME/.vnc/xstartup &" >> $HOME/launch.sh \
     && echo "nginx -g 'daemon off;'" >> $HOME/launch.sh # Start nginx in the foreground
 RUN chmod +x $HOME/launch.sh
 
