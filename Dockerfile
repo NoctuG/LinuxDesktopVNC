@@ -57,7 +57,7 @@ RUN git clone https://github.com/novnc/noVNC.git $HOME/utils/noVNC \
 RUN useradd -m $USER && echo "$USER:$USER" | chpasswd && adduser $USER sudo
 
 # Generate random passwords for VNC and root
-RUN VNC_PASSWORD=$(openssl rand -hex 8) && echo "VNC Password: $VNC_PASSWORD" \
+RUN VNC_PASSWORD=$(openssl rand -hex 16) && echo "VNC Password: $VNC_PASSWORD" \
     && echo root:$VNC_PASSWORD | chpasswd
 
 # Set up VNC
@@ -84,13 +84,17 @@ COPY nginx.conf /etc/nginx/sites-available/default
 
 # Create launch.sh to start VNC Server and noVNC on container startup
 RUN echo "#!/bin/bash" > $HOME/launch.sh \
-    && echo "export VNC_PASSWORD=\$(openssl rand -hex 8)" >> $HOME/launch.sh \
+    && echo "export VNC_PASSWORD=\$(openssl rand -hex 16)" >> $HOME/launch.sh \
+    && echo "export ROOT_PASSWORD=\$(openssl rand -hex 16)" >> $HOME/launch.sh \
     && echo "echo \"VNC Password: \$VNC_PASSWORD\"" >> $HOME/launch.sh \
+    && echo "echo \"Root Password: \$ROOT_PASSWORD\"" >> $HOME/launch.sh \
+    && echo "echo root:\$ROOT_PASSWORD | chpasswd" >> $HOME/launch.sh \
     && echo "su -l -c 'echo \$VNC_PASSWORD | vncpasswd -f > $HOME/.vnc/passwd' &" >> $HOME/launch.sh \
     && echo "su -l -c 'vncserver :$VNC_PORT -geometry $VNC_GEOMETRY' &" >> $HOME/launch.sh \
     && echo "$HOME/utils/novnc_proxy --vnc localhost:$VNC_PORT --web $HOME/utils/noVNC --listen $NOVNC_PORT &" >> $HOME/launch.sh \
     && echo "nginx -g 'daemon off;'" >> $HOME/launch.sh \
     && chmod +x $HOME/launch.sh
+
 
 # Modify CMD to run launch.sh as root
 USER root
