@@ -84,4 +84,5 @@ RUN echo "#!/bin/bash" > $HOME/launch.sh \
     && chmod +x $HOME/launch.sh
 
 # Modify CMD to run launch.sh as root
+USER root
 CMD ["/home/user/launch.sh"]
