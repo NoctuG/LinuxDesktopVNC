@@ -12,6 +12,7 @@ ENV NOVNC_PORT 8900
 ENV USER user
 ENV HOME /home/$USER
 ENV DISPLAY :0
+ENV VNC_PASSWORD PaaSWord246800
 
 # Install necessary packages
 RUN apt-get install -y --no-install-recommends \
@@ -81,6 +82,7 @@ COPY nginx.conf /etc/nginx/sites-available/default
 # Create launch.sh to start VNC Server and noVNC on container startup
 RUN echo "#!/bin/bash" > $HOME/launch.sh \
     && echo "su -l -c 'vncserver :$VNC_PORT -geometry $VNC_GEOMETRY' &" >> $HOME/launch.sh \
+    && echo "export VNC_PASSWORD=$VNC_PASSWORD" >> $HOME/launch.sh \
     && echo "$HOME/utils/novnc_proxy --vnc localhost:$VNC_PORT --web $HOME/utils/noVNC --listen $NOVNC_PORT &" >> $HOME/launch.sh \
     && echo "nginx -g 'daemon off;'" >> $HOME/launch.sh \
     && chmod +x $HOME/launch.sh
