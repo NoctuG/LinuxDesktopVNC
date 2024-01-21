@@ -55,8 +55,9 @@ RUN git clone https://github.com/novnc/noVNC.git $HOME/utils/noVNC \
 RUN useradd -m $USER && echo "$USER:$USER" | chpasswd && adduser $USER sudo
 
 # Set up VNC
+USER root
 RUN mkdir -p $HOME/.vnc \
-    && openssl rand -base64 32 | tr -d '\n' | vncpasswd -f > $HOME/.vnc/passwd \
+    && echo -n "password" | vncpasswd -f > $HOME/.vnc/passwd \
     && echo '/bin/env MOZ_FAKE_NO_SANDBOX=1 dbus-launch xfce4-session' > $HOME/.vnc/xstartup \
     && touch $HOME/.Xauthority \
     && chmod 600 $HOME/.vnc/passwd \
