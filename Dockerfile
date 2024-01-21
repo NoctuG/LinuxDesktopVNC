@@ -76,5 +76,5 @@ RUN echo "#!/bin/bash" > $HOME/launch.sh \
     && echo "nginx -g 'daemon off;'" >> $HOME/launch.sh # Start nginx in the foreground
 RUN chmod +x $HOME/launch.sh
 
-# Modify CMD to run launch.sh as root
+# Modify CMD to run launch.sh
 CMD ["/home/user/launch.sh"]
