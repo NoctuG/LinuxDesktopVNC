@@ -12,7 +12,7 @@ ENV NOVNC_PORT 8900
 ENV USER user
 ENV HOME /home/$USER
 ENV DISPLAY :0
-ENV VNC_PASSWORD PaaSWord246800
+ENV VNC_PASSWORD 3VzTG35F
 
 # Install necessary packages
 RUN apt-get install -y --no-install-recommends \
