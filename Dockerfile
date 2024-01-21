@@ -79,7 +79,7 @@ COPY nginx.conf /etc/nginx/sites-available/default
 # Create launch.sh to start VNC Server and noVNC on container startup
 RUN echo "#!/bin/bash" > $HOME/launch.sh \
     && echo "su -l -c 'vncserver :$VNC_PORT -geometry $VNC_GEOMETRY' &" >> $HOME/launch.sh \
-    && echo "$HOME/utils/novnc_proxy --vnc localhost:$VNC_PORT &" >> $HOME/launch.sh \
+    && echo "$HOME/utils/novnc_proxy --vnc localhost:$VNC_PORT --web $HOME/utils/noVNC &" >> $HOME/launch.sh \
     && echo "nginx -g 'daemon off;'" >> $HOME/launch.sh \
     && chmod +x $HOME/launch.sh
 
