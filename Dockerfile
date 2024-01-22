@@ -79,7 +79,7 @@ whoami\n\
 cat $HOME/.vnc/passwd.log\n\
 cd $HOME\n\
 vncserver :2000 -geometry 1360x768\n\
-/noVNC/utils/novnc_proxy  --vnc localhost:7900 --listen 8900' > /setup.sh && \
+/noVNC/utils/novnc_proxy  --vnc localhost:2000 --listen 8900' > /setup.sh && \
 chmod 755 /setup.sh
 
 #Expose port
@@ -87,3 +87,4 @@ EXPOSE 8900
 
 # Set the command to run when the container starts
 CMD ["/setup.sh"]
+
