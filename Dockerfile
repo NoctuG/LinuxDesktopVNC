@@ -26,7 +26,7 @@ FROM debian
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 
-COPY --from=builder /noVNC-1.4.0 /noVNC-1.4.0
+COPY --from=builder /noVNC-1.4.0 /noVNC
 
 RUN apt update && \
     apt install -y --no-install-recommends \
@@ -48,7 +48,7 @@ RUN apt update && \
 
 # Generate a random password and set it as VNC password
 RUN mkdir -p $HOME/.vnc && \
-    RAND_PASSWD=$(openssl rand -base64 12) && \
+    RAND_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 8) && \
     echo $RAND_PASSWD | vncpasswd -f > $HOME/.vnc/passwd && \
     echo '/bin/env  MOZ_FAKE_NO_SANDBOX=1  dbus-launch xfce4-session'  > $HOME/.vnc/xstartup && \
     chmod 600 $HOME/.vnc/passwd && \
@@ -61,7 +61,7 @@ whoami\n\
 cat $HOME/.vnc/passwd.log\n\
 cd\n\
 su -l -c "vncserver :2000 -geometry 1360x768"\n\
-cd /noVNC-1.4.0\n\
+cd /noVNC\n\
 ./utils/launch.sh  --vnc localhost:7900 --listen 8900' > /setup.sh && \
 chmod 755 /setup.sh
 
