@@ -37,17 +37,17 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV HOME=/opt/user
 
 # Create the /home/user directory
-RUN mkdir -p $HOME
+RUN mkdir -p $HOME && chown -R 1000:1000 $HOME
 
 # Create .Xauthority
-RUN touch $HOME/.Xauthority
+RUN touch $HOME/.Xauthority && chown 1000:1000 $HOME/.Xauthority
 
 # Copy and set permissions on the setup.sh script
 COPY setup.sh /setup.sh
 RUN chmod +x /setup.sh
 
 # Copy necessary files from builder stage
-COPY --from=builder /opt/user/noVNC /noVNC
+COPY --from=builder --chown=1000:1000 /opt/user/noVNC /noVNC
 
 # Verify the contents of the /noVNC directory
 RUN ls -alh /noVNC
@@ -74,20 +74,20 @@ RUN apt update && \
     rm -rf /var/lib/apt/lists/*
 
 # Generate a random password and set it as VNC password
-RUN /bin/bash -c "mkdir -p $HOME/.vnc && \
-    RAND_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && \
+RUN RAND_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && \
     echo $RAND_PASSWD | vncpasswd -f > $HOME/.vnc/passwd && \
     echo 'xrdb $HOME/.Xresources\nxsetroot -solid grey\nstartxfce4 &'  > $HOME/.vnc/xstartup && \
     chmod 600 $HOME/.vnc/passwd && \
     chmod 755 $HOME/.vnc/xstartup && \
-    echo \"VNC Password: $RAND_PASSWD\" > $HOME/.vnc/passwd.log"
+    echo "VNC Password: $RAND_PASSWD"
 
 # Set XFCE to use a specific common font
 RUN echo "Xft.dpi: 96\nXft.antialias: true\nXft.hinting: true\nXft.rgba: rgb\nXft.hintstyle: hintslight\nXft.lcdfilter: lcddefault\nXft.autohint: 0\nXft.lcdfilter: lcdlight" > $HOME/.Xresources
 
 # Generate a random password for root and write it to the log
-RUN echo "root:$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12)" | chpasswd && \
-    echo "Root Password: $(echo root | openssl passwd -stdin)" > /opt/passwd.log
+RUN ROOT_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && \
+    echo "root:$ROOT_PASSWD" | chpasswd && \
+    echo "Root Password: $ROOT_PASSWD"
 
 # Check passw.log
 RUN cat $HOME/.vnc/passwd.log
