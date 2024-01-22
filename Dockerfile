@@ -25,7 +25,10 @@ FROM debian
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
-ENV HOME=/root
+ENV HOME=/home/user
+
+# Create the /home/user directory
+RUN mkdir -p $HOME
 
 COPY --from=builder /noVNC-1.4.0 /noVNC
 
