@@ -53,6 +53,7 @@ RUN ls -alh /noVNC
 RUN apt update && \
     apt install -y --no-install-recommends \
         python3 \
+        python3-pip \
         wine \
         qemu-kvm \
         ttf-wqy-zenhei \
