@@ -14,10 +14,17 @@ RUN apt update && \
         openssl \
         ca-certificates \
         git \
+        build-essential \
+        libffi-dev \
+        libssl-dev \
+        python3-dev \
         xz-utils && \
     apt clean && \
     update-ca-certificates && \
     rm -rf /var/lib/apt/lists/*
+
+# Install Python’s numpy module
+RUN pip3 install numpy
 
 # Download and unzip noVNC
 WORKDIR $HOME
@@ -52,12 +59,6 @@ RUN ls -alh /noVNC
 # Install required packages
 RUN apt update && \
     apt install -y --no-install-recommends \
-        python3 \
-        python3-pip \
-        build-essential \
-        libffi-dev \
-        libssl-dev \
-        python3-dev
         wine \
         qemu-kvm \
         ttf-wqy-zenhei \
@@ -74,9 +75,6 @@ RUN apt update && \
         xfonts-base && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
-
-# Install Python’s numpy module
-RUN pip3 install numpy
 
 # Create the /root/.vnc directory
 RUN mkdir -p $HOME/.vnc && chown $USER:$USER $HOME/.vnc
