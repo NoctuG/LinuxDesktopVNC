@@ -82,24 +82,29 @@ USER $USER
 # Create the /home/user/.vnc directory
 RUN mkdir -p $HOME/.vnc && chown $USER:$USER $HOME/.vnc
 
-# Generate a random password and set it as VNC password
+# Generate a random password for user and set it as an environment variable
 RUN RAND_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && \
     echo $RAND_PASSWD | vncpasswd -f > $HOME/.vnc/passwd && \
     echo 'xrdb $HOME/.Xresources\nxsetroot -solid grey\nstartxfce4 &'  > $HOME/.vnc/xstartup && \
     chmod 600 $HOME/.vnc/passwd && \
     chmod 755 $HOME/.vnc/xstartup && \
-    echo "VNC Password: $RAND_PASSWD"
+    echo "VNC Password: $RAND_PASSWD" && \
+    echo "export USER_PASSWORD=$RAND_PASSWD" >> $HOME/.bashrc
 
 # Set XFCE to use a specific common font
 RUN echo "Xft.dpi: 96\nXft.antialias: true\nXft.hinting: true\nXft.rgba: rgb\nXft.hintstyle: hintslight\nXft.lcdfilter: lcddefault\nXft.autohint: 0\nXft.lcdfilter: lcdlight" > $HOME/.Xresources
 
+# Run vncserver
+RUN su - user -c "vncserver"
+
 # Switch back to root user
 USER root
 
-# Generate a random password for root and write it to the log
+# Generate a random password for root and set it as an environment variable
 RUN ROOT_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && \
     echo "root:$ROOT_PASSWD" | chpasswd && \
-    echo "Root Password: $ROOT_PASSWD"
+    echo "Root Password: $ROOT_PASSWD" && \
+    echo "export ROOT_PASSWORD=$ROOT_PASSWD" >> $HOME/.bashrc
 
 #Expose port
 EXPOSE 8900
