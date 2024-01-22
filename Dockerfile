@@ -1,101 +1,70 @@
-# Use debian as base image
-FROM debian:bullseye-slim
-
-# Update package lists
-RUN apt-get update && apt-get upgrade -y
+# Use the official Debian image as the base image
+FROM debian as builder
 
 # Set environment variables
-ENV NOVNC_VERSION v1.4.0
-ENV VNC_GEOMETRY 1360x768
-ENV VNC_PORT 2000
-ENV NOVNC_PORT 8900
-ENV USER user
-ENV HOME /home/$USER
-ENV DISPLAY :0
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Install necessary packages
-RUN apt-get install -y --no-install-recommends \
-    ca-certificates \
-    qemu-kvm \
-    fonts-wqy-zenhei \
-    xz-utils \
-    dbus-x11 \
-    curl \
-    firefox-esr \
-    gnome-system-monitor \
-    mate-system-monitor \
-    git \
-    xfce4 \
-    xfce4-terminal \
-    tightvncserver \
-    wget \
-    expect \
-    xfonts-base \
-    xfonts-75dpi \
-    nginx \
-    sudo \
-    openssl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Update package list
+# Install required packages
+# Clean APT cache to reduce image size
+RUN apt update && \
+    apt install -y --no-install-recommends \
+        wget \
+        openssl \
+        xz-utils && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Create a symlink for /bin/env
-RUN ln -s /usr/bin/env /bin/env
+# Download and unzip noVNC
+RUN wget https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz && \
+    tar -xvf v1.4.0.tar.gz && \
+    rm v1.4.0.tar.gz
 
-# Download and extract noVNC
-RUN curl -k -sSL -o noVNC.tar.gz https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz \
-    && tar xzf noVNC.tar.gz -C / \
-    && mv /noVNC-1.4.0 /noVNC \
-    && rm noVNC.tar.gz
+FROM debian
 
-# Download and configure novnc_proxy
-RUN git clone https://github.com/novnc/noVNC.git $HOME/utils/noVNC \
-    && git clone https://github.com/novnc/websockify.git $HOME/utils/websockify \
-    && cp $HOME/utils/noVNC/utils/novnc_proxy $HOME/utils/novnc_proxy \
-    && chmod +x $HOME/utils/novnc_proxy
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Create a non-root user
-RUN useradd -m $USER && echo "$USER:$USER" | chpasswd && adduser $USER sudo
+COPY --from=builder /noVNC-1.4.0 /noVNC-1.4.0
 
-# Generate random passwords for VNC and root
-RUN VNC_PASSWORD=$(openssl rand -hex 16) && echo "VNC Password: $VNC_PASSWORD" \
-    && echo root:$VNC_PASSWORD | chpasswd
+RUN apt update && \
+    apt install -y --no-install-recommends \
+        wine \
+        qemu-kvm \
+        *zenhei* \
+        dbus-x11 \
+        curl \
+        firefox-esr \
+        gnome-system-monitor \
+        mate-system-monitor \
+        git \
+        xfce4 \
+        xfce4-terminal \
+        tightvncserver && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Set up VNC
-USER root
-RUN mkdir -p $HOME/.vnc \
-    && echo "$VNC_PASSWORD" | vncpasswd -f > $HOME/.vnc/passwd \
-    && echo '/bin/env MOZ_FAKE_NO_SANDBOX=1 dbus-launch xfce4-session' > $HOME/.vnc/xstartup \
-    && touch $HOME/.Xauthority \
-    && chmod 600 $HOME/.vnc/passwd \
-    && chmod 755 $HOME/.vnc/xstartup \
-    && chown -R $USER:$USER $HOME/.vnc \
-    && chown $USER:$USER $HOME/.Xauthority
-USER $USER
+# Generate a random password and set it as VNC password
+RUN mkdir -p $HOME/.vnc && \
+    RAND_PASSWD=$(openssl rand -base64 12) && \
+    echo $RAND_PASSWD | vncpasswd -f > $HOME/.vnc/passwd && \
+    echo '/bin/env  MOZ_FAKE_NO_SANDBOX=1  dbus-launch xfce4-session'  > $HOME/.vnc/xstartup && \
+    chmod 600 $HOME/.vnc/passwd && \
+    chmod 755 $HOME/.vnc/xstartup && \
+    echo "VNC Password: $RAND_PASSWD" > $HOME/.vnc/passwd.log
 
-# Set up noVNC
-USER root
-RUN echo "export DISPLAY=:0" >> $HOME/.vnc/xstartup
+#Create startup script
+RUN echo '#!/bin/bash\n\
+whoami\n\
+cat $HOME/.vnc/passwd.log\n\
+cd\n\
+su -l -c "vncserver :2000 -geometry 1360x768"\n\
+cd /noVNC-1.4.0\n\
+./utils/launch.sh  --vnc localhost:7900 --listen 8900' > /setup.sh && \
+chmod 755 /setup.sh
 
-# Expose both VNC and noVNC ports
-EXPOSE $VNC_PORT $NOVNC_PORT
+#Expose port
+EXPOSE 8900
 
-# Create nginx configuration to serve noVNC
-COPY nginx.conf /etc/nginx/sites-available/default
-
-# Create launch.sh to start VNC Server and noVNC on container startup
-RUN echo "#!/bin/bash" > $HOME/launch.sh \
-    && echo "export VNC_PASSWORD=\$(openssl rand -hex 16)" >> $HOME/launch.sh \
-    && echo "export ROOT_PASSWORD=\$(openssl rand -hex 16)" >> $HOME/launch.sh \
-    && echo "echo \"VNC Password: \$VNC_PASSWORD\"" >> $HOME/launch.sh \
-    && echo "echo \"Root Password: \$ROOT_PASSWORD\"" >> $HOME/launch.sh \
-    && echo "echo root:\$ROOT_PASSWORD | chpasswd" >> $HOME/launch.sh \
-    && echo "su -l -c 'echo \$VNC_PASSWORD | vncpasswd -f > $HOME/.vnc/passwd' &" >> $HOME/launch.sh \
-    && echo "su -l -c 'vncserver :$VNC_PORT -geometry $VNC_GEOMETRY' &" >> $HOME/launch.sh \
-    && echo "$HOME/utils/novnc_proxy --vnc localhost:$VNC_PORT --web $HOME/utils/noVNC --listen $NOVNC_PORT &" >> $HOME/launch.sh \
-    && echo "nginx -g 'daemon off;'" >> $HOME/launch.sh \
-    && chmod +x $HOME/launch.sh
-
-
-# Modify CMD to run launch.sh as root
-USER root
-CMD ["/home/user/launch.sh"]
+# Set the command to run when the container starts
+CMD ["/setup.sh"]
