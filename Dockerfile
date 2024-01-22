@@ -34,7 +34,7 @@ FROM debian:buster-slim
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
-ENV HOME=/opt/user
+ENV HOME=/home/user
 
 # Create the /home/user directory
 RUN mkdir -p $HOME && chown -R 1000:1000 $HOME
