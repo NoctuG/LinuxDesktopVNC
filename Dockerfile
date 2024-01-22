@@ -35,19 +35,22 @@ FROM debian:buster-slim
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV HOME=/home/user
+ENV USER=user
 
-# Create the /home/user directory
-RUN mkdir -p $HOME && chown -R 1000:1000 $HOME
+# Create a new user
+RUN useradd -d $HOME -s /bin/bash -u 1000 $USER && \
+    mkdir -p $HOME && \
+    chown -R $USER:$USER $HOME
 
 # Create .Xauthority
-RUN touch $HOME/.Xauthority && chown 1000:1000 $HOME/.Xauthority
+RUN touch $HOME/.Xauthority && chown $USER:$USER $HOME/.Xauthority
 
 # Copy and set permissions on the setup.sh script
 COPY setup.sh /setup.sh
 RUN chmod +x /setup.sh
 
 # Copy necessary files from builder stage
-COPY --from=builder --chown=1000:1000 /opt/user/noVNC /noVNC
+COPY --from=builder --chown=$USER:$USER /opt/user/noVNC /noVNC
 
 # Verify the contents of the /noVNC directory
 RUN ls -alh /noVNC
@@ -73,8 +76,11 @@ RUN apt update && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Switch to the new user
+USER $USER
+
 # Create the /home/user/.vnc directory
-RUN mkdir -p $HOME/.vnc && chown -R 1000:1000 $HOME/.vnc
+RUN mkdir -p $HOME/.vnc
 
 # Generate a random password and set it as VNC password
 RUN RAND_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && \
@@ -86,6 +92,9 @@ RUN RAND_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && 
 
 # Set XFCE to use a specific common font
 RUN echo "Xft.dpi: 96\nXft.antialias: true\nXft.hinting: true\nXft.rgba: rgb\nXft.hintstyle: hintslight\nXft.lcdfilter: lcddefault\nXft.autohint: 0\nXft.lcdfilter: lcdlight" > $HOME/.Xresources
+
+# Switch back to root user
+USER root
 
 # Generate a random password for root and write it to the log
 RUN ROOT_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && \
