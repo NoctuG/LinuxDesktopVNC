@@ -18,7 +18,7 @@ RUN apt update && \
 # Download and unzip noVNC
 RUN wget https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz && \
     tar -xvf v1.4.0.tar.gz && \
-    rm v1.4.0.tar.gz
+    rm v1.4.0.tar.gz /
 
 FROM debian
 
