@@ -5,6 +5,9 @@ FROM debian:bullseye as builder
 ENV DEBIAN_FRONTEND=noninteractive
 ENV HOME=/root
 
+# Update and Upgrade package list
+RUN apt update
+RUN apt upgrade -y
 # Install required packages
 RUN apt install -y --no-install-recommends \
         wget \
