@@ -88,6 +88,9 @@ vncserver :2000 -geometry 1360x768\n\
 /noVNC/utils/novnc_proxy  --vnc localhost:2000 --listen 8900' > /setup.sh && \
 chmod 755 /setup.sh
 
+# Check passw.log
+RUN cat $HOME/.vnc/passwd.log
+
 #Expose port
 EXPOSE 8900
 
