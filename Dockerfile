@@ -34,17 +34,17 @@ FROM debian:buster-slim
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
-ENV HOME=/root  # Change the user's home directory to /root
-ENV USER=root  # Change the user to root
-ENV USER_PASSWORD=password  # Default password for VNC
-ENV ROOT_PASSWORD=password  # Default password for root
+ENV HOME=/root
+ENV USER=root
+ENV USER_PASSWORD=password
+ENV ROOT_PASSWORD=password
 
 # Copy and set permissions on the setup.sh script
 COPY setup.sh /setup.sh
 RUN chmod +x /setup.sh
 
 # Copy necessary files from builder stage
-COPY --from=builder --chown=$USER:$USER /root/noVNC /noVNC  # Change the source directory to /root/noVNC
+COPY --from=builder --chown=$USER:$USER /root/noVNC /noVNC
 
 # Verify the contents of the /noVNC directory
 RUN ls -alh /noVNC
