@@ -12,9 +12,11 @@ RUN apt update && \
         wget \
         openssl \
         ca-certificates \
+        git \
         xz-utils && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
+
 
 # Download and unzip noVNC
 WORKDIR /root
