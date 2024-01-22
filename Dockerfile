@@ -42,11 +42,6 @@ COPY --from=builder /root/noVNC /noVNC
 # Verify the contents of the /noVNC directory
 RUN ls -alh /noVNC
 
-# Set execute permission on launch.sh
-RUN chmod +x /noVNC/utils/launch.sh
-
-# Verify the contents of launch.sh
-RUN cat /noVNC/utils/launch.sh
 
 
 # Install required packages
@@ -84,7 +79,7 @@ whoami\n\
 cat $HOME/.vnc/passwd.log\n\
 cd $HOME\n\
 vncserver :2000 -geometry 1360x768\n\
-/noVNC/utils/launch.sh  --vnc localhost:7900 --listen 8900' > /setup.sh && \
+/noVNC/utils/novnc_proxy  --vnc localhost:7900 --listen 8900' > /setup.sh && \
 chmod 755 /setup.sh
 
 #Expose port
