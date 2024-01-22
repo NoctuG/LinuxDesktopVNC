@@ -72,7 +72,7 @@ RUN apt update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Python’s numpy module
-RUN pip install numpy
+RUN pip3 install numpy
 
 # Create the /root/.vnc directory
 RUN mkdir -p $HOME/.vnc && chown $USER:$USER $HOME/.vnc
