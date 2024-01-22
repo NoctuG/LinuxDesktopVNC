@@ -73,6 +73,9 @@ RUN apt update && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Create the /home/user/.vnc directory
+RUN mkdir -p $HOME/.vnc && chown -R 1000:1000 $HOME/.vnc
+
 # Generate a random password and set it as VNC password
 RUN RAND_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && \
     echo $RAND_PASSWD | vncpasswd -f > $HOME/.vnc/passwd && \
