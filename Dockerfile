@@ -36,11 +36,18 @@ RUN mkdir -p $HOME
 # Create .Xauthority
 RUN touch $HOME/.Xauthority
 
-# Copy necessary file
+# Copy necessary files from builder stage
 COPY --from=builder /root/noVNC /noVNC
-RUN ls -alh /noVNC  # Add this line to list the contents of the /noVNC directory
-RUN chmod +x /noVNC/utils/launch.sh  # Add this line to add execute permission to /noVNC/utils/launch.sh
-RUN cat /noVNC/utils/launch.sh  # Add this line to view the contents of /noVNC/utils/launch.sh
+
+# Verify the contents of the /noVNC directory
+RUN ls -alh /noVNC
+
+# Set execute permission on launch.sh
+RUN chmod +x /noVNC/utils/launch.sh
+
+# Verify the contents of launch.sh
+RUN cat /noVNC/utils/launch.sh
+
 
 # Install required packages
 RUN apt update && \
