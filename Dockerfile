@@ -3,7 +3,7 @@ FROM debian:buster-slim as builder
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
-ENV HOME=/root  # Change the user's home directory to /root
+ENV HOME=/root # Change the user's home directory to /root
 
 # Update package list
 # Install required packages
