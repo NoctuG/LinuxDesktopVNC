@@ -92,10 +92,6 @@ RUN ROOT_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && 
     echo "root:$ROOT_PASSWD" | chpasswd && \
     echo "Root Password: $ROOT_PASSWD"
 
-# Check passw.log
-RUN cat $HOME/.vnc/passwd.log
-RUN cat /opt/passwd.log
-
 #Expose port
 EXPOSE 8900
 
