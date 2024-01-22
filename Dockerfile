@@ -21,7 +21,8 @@ WORKDIR /root
 RUN wget https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz && \
     tar -xvf v1.4.0.tar.gz && \
     mv noVNC-1.4.0 noVNC && \
-    rm v1.4.0.tar.gz
+    rm v1.4.0.tar.gz && \
+    ls -alh /root/noVNC  # Add this line to list the contents of the /root/noVNC directory
 
 FROM debian
 
@@ -37,7 +38,7 @@ RUN touch $HOME/.Xauthority
 
 # Copy necessary file
 COPY --from=builder /root/noVNC /noVNC
-RUN ls /noVNC
+RUN ls -alh /noVNC  # Add this line to list the contents of the /noVNC directory
 
 # Install required packages
 RUN apt update && \
