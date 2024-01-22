@@ -19,6 +19,7 @@ RUN apt update && \
 # Download and unzip noVNC
 RUN wget https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz && \
     tar -xvf v1.4.0.tar.gz && \
+    mv noVNC-1.4.0 noVNC && \
     rm v1.4.0.tar.gz
 
 FROM debian
@@ -30,7 +31,7 @@ ENV HOME=/home/user
 # Create the /home/user directory
 RUN mkdir -p $HOME
 
-COPY --from=builder /noVNC-1.4.0 /noVNC
+COPY --from=builder /noVNC /noVNC
 
 RUN apt update && \
     apt install -y --no-install-recommends \
@@ -74,3 +75,4 @@ EXPOSE 8900
 
 # Set the command to run when the container starts
 CMD ["/setup.sh"]
+
