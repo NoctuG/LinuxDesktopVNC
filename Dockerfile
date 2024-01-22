@@ -25,6 +25,7 @@ FROM debian
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
+ENV HOME=/root
 
 COPY --from=builder /noVNC-1.4.0 /noVNC
 
@@ -42,7 +43,8 @@ RUN apt update && \
         xfce4 \
         xfce4-terminal \
         tightvncserver \
-        openssl && \
+        openssl \
+        xfonts-base && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -59,8 +61,8 @@ RUN mkdir -p $HOME/.vnc && \
 RUN echo '#!/bin/bash\n\
 whoami\n\
 cat $HOME/.vnc/passwd.log\n\
-cd\n\
-su -l -c "vncserver :2000 -geometry 1360x768"\n\
+cd $HOME\n\
+vncserver :2000 -geometry 1360x768\n\
 cd /noVNC\n\
 ./utils/launch.sh  --vnc localhost:7900 --listen 8900' > /setup.sh && \
 chmod 755 /setup.sh
