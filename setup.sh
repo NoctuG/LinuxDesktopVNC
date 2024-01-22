@@ -4,4 +4,4 @@
 vncserver :0 -geometry 1360x768 -depth 24 -localhost no &
 
 # Start noVNC
-/noVNC/utils/launch.sh --vnc localhost:5900
+/noVNC/utils/novnc_proxy  --vnc localhost:2000 --listen 8900
