@@ -69,13 +69,14 @@ RUN apt update && \
     rm -rf /var/lib/apt/lists/*
 
 # Generate a random password and set it as VNC password
-RUN mkdir -p $HOME/.vnc && \
+RUN /bin/bash -c "mkdir -p $HOME/.vnc && \
     RAND_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 8) && \
     vncpasswd -f <<< $RAND_PASSWD > $HOME/.vnc/passwd && \
     echo '/bin/env  MOZ_FAKE_NO_SANDBOX=1  dbus-launch xfce4-session'  > $HOME/.vnc/xstartup && \
     chmod 600 $HOME/.vnc/passwd && \
     chmod 755 $HOME/.vnc/xstartup && \
-    echo "VNC Password: $RAND_PASSWD" > $HOME/.vnc/passwd.log
+    echo \"VNC Password: $RAND_PASSWD\" > $HOME/.vnc/passwd.log"
+
 
 #Create startup script
 RUN echo '#!/bin/bash\n\
