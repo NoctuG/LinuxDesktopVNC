@@ -80,13 +80,13 @@ RUN /bin/bash -c "mkdir -p $HOME/.vnc && \
     echo \"VNC Password: $RAND_PASSWD\" > $HOME/.vnc/passwd.log"
 
 #Create startup script
-RUN echo '#!/bin/bash\n\
-whoami\n\
-cat $HOME/.vnc/passwd.log\n\
-cd $HOME\n\
-vncserver :2000 -geometry 1360x768\n\
-/noVNC/utils/novnc_proxy  --vnc localhost:2000 --listen 8900' > /setup.sh && \
-chmod 755 /setup.sh
+RUN /bin/bash -c "mkdir -p $HOME/.vnc && \
+    RAND_PASSWD=$(dd if=/dev/urandom bs=1 count=1000 2>/dev/null | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1) && \
+    echo $RAND_PASSWD | vncpasswd -f > $HOME/.vnc/passwd && \
+    echo '/bin/env  MOZ_FAKE_NO_SANDBOX=1  dbus-launch xfce4-session'  > $HOME/.vnc/xstartup && \
+    chmod 600 $HOME/.vnc/passwd && \
+    chmod 755 $HOME/.vnc/xstartup && \
+    echo \"VNC Password: $RAND_PASSWD\" > $HOME/.vnc/passwd.log"
 
 # Check passw.log
 RUN cat $HOME/.vnc/passwd.log
