@@ -23,6 +23,9 @@ RUN apt update && \
     update-ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
+# Install Python 3, pip and necessary libraries
+RUN apt-get install -y python3 python3-pip python3-dev build-essential libblas-dev liblapack-dev gfortran
+
 # Install Python’s numpy module
 RUN pip3 install numpy
 
