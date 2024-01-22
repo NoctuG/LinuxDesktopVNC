@@ -28,7 +28,7 @@ RUN wget https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz && \
     ls -alh $HOME/noVNC  # Add this line to list the contents of the /home/user/noVNC directory
 
 # Cloning websockify
-RUN git clone https://github.com/novnc/websockify /noVNC/utils/websockify
+RUN git clone https://github.com/novnc/websockify noVNC/utils/websockify
 
 FROM debian:buster-slim
 
@@ -48,7 +48,6 @@ RUN chmod +x /setup.sh
 
 # Copy necessary files from builder stage
 COPY --from=builder /opt/user/noVNC /noVNC
-COPY --from=builder /opt/user/noVNC/utils/websockify /noVNC/utils/websockify
 
 # Verify the contents of the /noVNC directory
 RUN ls -alh /noVNC
