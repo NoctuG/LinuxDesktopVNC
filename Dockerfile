@@ -29,11 +29,17 @@ FROM debian
 ENV DEBIAN_FRONTEND=noninteractive
 ENV HOME=/home/user
 
+# Create .Xauthority
+RUN touch $HOME/.Xauthority
+
 # Create the /home/user directory
 RUN mkdir -p $HOME
 
+# Copy necessary file
 COPY --from=builder /root/noVNC /noVNC
+RUN ls /noVNC
 
+# Install required packages
 RUN apt update && \
     apt install -y --no-install-recommends \
         wine \
