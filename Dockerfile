@@ -24,6 +24,9 @@ RUN wget https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz && \
     rm v1.4.0.tar.gz && \
     ls -alh /root/noVNC  # Add this line to list the contents of the /root/noVNC directory
 
+# Cloning websockify
+RUN git clone https://github.com/novnc/websockify /noVNC/utils/websockify
+
 FROM debian
 
 # Set environment variables
@@ -41,8 +44,6 @@ COPY --from=builder /root/noVNC /noVNC
 
 # Verify the contents of the /noVNC directory
 RUN ls -alh /noVNC
-
-
 
 # Install required packages
 RUN apt update && \
