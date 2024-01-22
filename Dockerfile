@@ -1,5 +1,5 @@
 # Use the official Debian image as the base image
-FROM debian as builder
+FROM debian:buster-slim as builder
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -30,7 +30,7 @@ RUN wget https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz && \
 # Cloning websockify
 RUN git clone https://github.com/novnc/websockify /noVNC/utils/websockify
 
-FROM debian
+FROM debian:buster-slim
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -44,6 +44,7 @@ RUN touch $HOME/.Xauthority
 
 # Copy necessary files from builder stage
 COPY --from=builder /root/noVNC /noVNC
+COPY --from=builder /noVNC/utils/websockify /noVNC/utils/websockify
 
 # Verify the contents of the /noVNC directory
 RUN ls -alh /noVNC
@@ -91,4 +92,3 @@ EXPOSE 8900
 
 # Set the command to run when the container starts
 CMD ["/setup.sh"]
-
