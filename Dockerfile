@@ -1,15 +1,12 @@
 # Use the official Debian image as the base image
-FROM debian:buster-slim as builder
+FROM debian:bullseye as builder
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV HOME=/root
 
-# Update package list
 # Install required packages
-# Clean APT cache to reduce image size
-RUN apt update && \
-    apt install -y --no-install-recommends \
+RUN apt install -y --no-install-recommends \
         wget \
         openssl \
         ca-certificates \
@@ -18,13 +15,15 @@ RUN apt update && \
         libffi-dev \
         libssl-dev \
         python3-dev \
-        xz-utils && \
-    apt clean && \
+        xz-utils
+
+# Clean APT cache to reduce image size
+RUN apt clean && \
     update-ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Python 3, pip and necessary libraries
-RUN apt-get install -y python3 python3-pip python3-dev build-essential libblas-dev liblapack-dev gfortran
+RUN apt-get update && apt-get install -y python3 python3-pip python3-dev build-essential libblas-dev liblapack-dev gfortran
 
 # Install Python’s numpy module
 RUN pip3 install numpy
@@ -40,7 +39,7 @@ RUN wget https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz && \
 # Cloning websockify
 RUN git clone https://github.com/novnc/websockify noVNC/utils/websockify
 
-FROM debian:buster-slim
+FROM debian:bullseye
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
