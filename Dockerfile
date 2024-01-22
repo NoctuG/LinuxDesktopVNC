@@ -15,6 +15,7 @@ RUN apt update && \
         git \
         xz-utils && \
     apt clean && \
+    update-ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 
