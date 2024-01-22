@@ -42,6 +42,7 @@ RUN apt update && \
         xfce4 \
         xfce4-terminal \
         tightvncserver && \
+        openssl && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
