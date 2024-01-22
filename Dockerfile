@@ -36,6 +36,8 @@ FROM debian:buster-slim
 ENV DEBIAN_FRONTEND=noninteractive
 ENV HOME=/root  # Change the user's home directory to /root
 ENV USER=root  # Change the user to root
+ENV USER_PASSWORD=password  # Default password for VNC
+ENV ROOT_PASSWORD=password  # Default password for root
 
 # Copy and set permissions on the setup.sh script
 COPY setup.sh /setup.sh
@@ -71,26 +73,15 @@ RUN apt update && \
 # Create the /root/.vnc directory
 RUN mkdir -p $HOME/.vnc && chown $USER:$USER $HOME/.vnc
 
-# Generate a random password for user and set it as an environment variable
-RUN RAND_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && \
-    echo $RAND_PASSWD | vncpasswd -f > $HOME/.vnc/passwd && \
+# Set user password for VNC and root
+RUN echo $USER_PASSWORD | vncpasswd -f > $HOME/.vnc/passwd && \
     echo 'xrdb $HOME/.Xresources\nxsetroot -solid grey\nstartxfce4 &'  > $HOME/.vnc/xstartup && \
     chmod 600 $HOME/.vnc/passwd && \
     chmod 755 $HOME/.vnc/xstartup && \
-    echo "VNC Password: $RAND_PASSWD" && \
-    echo "export USER_PASSWORD=$RAND_PASSWD" >> $HOME/.bashrc
+    echo "root:$ROOT_PASSWORD" | chpasswd
 
 # Set XFCE to use a specific common font
 RUN echo "Xft.dpi: 96\nXft.antialias: true\nXft.hinting: true\nXft.rgba: rgb\nXft.hintstyle: hintslight\nXft.lcdfilter: lcddefault\nXft.autohint: 0\nXft.lcdfilter: lcdlight" > $HOME/.Xresources
-
-# Run vncserver
-RUN su - $USER -c "vncserver"
-
-# Generate a random password for root and set it as an environment variable
-RUN ROOT_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && \
-    echo "root:$ROOT_PASSWD" | chpasswd && \
-    echo "Root Password: $ROOT_PASSWD" && \
-    echo "export ROOT_PASSWORD=$ROOT_PASSWD" >> $HOME/.bashrc
 
 #Expose port
 EXPOSE 8900
