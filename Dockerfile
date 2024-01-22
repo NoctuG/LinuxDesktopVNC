@@ -42,6 +42,10 @@ RUN mkdir -p $HOME
 # Create .Xauthority
 RUN touch $HOME/.Xauthority
 
+# Copy and set permissions on the setup.sh script
+COPY setup.sh /setup.sh
+RUN chmod +x /setup.sh
+
 # Copy necessary files from builder stage
 COPY --from=builder /root/noVNC /noVNC
 COPY --from=builder /noVNC/utils/websockify /noVNC/utils/websockify
