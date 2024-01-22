@@ -80,7 +80,7 @@ RUN apt update && \
 USER $USER
 
 # Create the /home/user/.vnc directory
-RUN mkdir -p $HOME/.vnc
+RUN mkdir -p $HOME/.vnc && chown $USER:$USER $HOME/.vnc
 
 # Generate a random password and set it as VNC password
 RUN RAND_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && \
@@ -95,9 +95,6 @@ RUN echo "Xft.dpi: 96\nXft.antialias: true\nXft.hinting: true\nXft.rgba: rgb\nXf
 
 # Switch back to root user
 USER root
-
-# Change permissions of the /home/user/.vnc directory
-RUN chmod -R 777 $HOME/.vnc
 
 # Generate a random password for root and write it to the log
 RUN ROOT_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && \
