@@ -17,6 +17,7 @@ RUN apt update && \
     rm -rf /var/lib/apt/lists/*
 
 # Download and unzip noVNC
+WORKDIR /root
 RUN wget https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz && \
     tar -xvf v1.4.0.tar.gz && \
     mv noVNC-1.4.0 noVNC && \
@@ -31,7 +32,7 @@ ENV HOME=/home/user
 # Create the /home/user directory
 RUN mkdir -p $HOME
 
-COPY --from=builder /noVNC /noVNC
+COPY --from=builder /root/noVNC /noVNC
 
 RUN apt update && \
     apt install -y --no-install-recommends \
