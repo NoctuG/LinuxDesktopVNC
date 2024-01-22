@@ -3,7 +3,7 @@ FROM debian:buster-slim as builder
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
-ENV HOME=/opt/user
+ENV HOME=/root  # Change the user's home directory to /root
 
 # Update package list
 # Install required packages
@@ -25,7 +25,7 @@ RUN wget https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.tar.gz && \
     tar -xvf v1.4.0.tar.gz && \
     mv noVNC-1.4.0 noVNC && \
     rm v1.4.0.tar.gz && \
-    ls -alh $HOME/noVNC  # Add this line to list the contents of the /home/user/noVNC directory
+    ls -alh $HOME/noVNC  # Add this line to list the contents of the /root/noVNC directory
 
 # Cloning websockify
 RUN git clone https://github.com/novnc/websockify noVNC/utils/websockify
@@ -34,23 +34,15 @@ FROM debian:buster-slim
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
-ENV HOME=/home/user
-ENV USER=user
-
-# Create a new user
-RUN useradd -d $HOME -s /bin/bash -u 1000 $USER && \
-    mkdir -p $HOME && \
-    chown -R $USER:$USER $HOME
-
-# Create .Xauthority
-RUN touch $HOME/.Xauthority && chown $USER:$USER $HOME/.Xauthority
+ENV HOME=/root  # Change the user's home directory to /root
+ENV USER=root  # Change the user to root
 
 # Copy and set permissions on the setup.sh script
 COPY setup.sh /setup.sh
 RUN chmod +x /setup.sh
 
 # Copy necessary files from builder stage
-COPY --from=builder --chown=$USER:$USER /opt/user/noVNC /noVNC
+COPY --from=builder --chown=$USER:$USER /root/noVNC /noVNC  # Change the source directory to /root/noVNC
 
 # Verify the contents of the /noVNC directory
 RUN ls -alh /noVNC
@@ -76,10 +68,7 @@ RUN apt update && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Switch to the new user
-USER $USER
-
-# Create the /home/user/.vnc directory
+# Create the /root/.vnc directory
 RUN mkdir -p $HOME/.vnc && chown $USER:$USER $HOME/.vnc
 
 # Generate a random password for user and set it as an environment variable
@@ -95,10 +84,7 @@ RUN RAND_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && 
 RUN echo "Xft.dpi: 96\nXft.antialias: true\nXft.hinting: true\nXft.rgba: rgb\nXft.hintstyle: hintslight\nXft.lcdfilter: lcddefault\nXft.autohint: 0\nXft.lcdfilter: lcdlight" > $HOME/.Xresources
 
 # Run vncserver
-RUN su - user -c "vncserver"
-
-# Switch back to root user
-USER root
+RUN su - $USER -c "vncserver"
 
 # Generate a random password for root and set it as an environment variable
 RUN ROOT_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && \
