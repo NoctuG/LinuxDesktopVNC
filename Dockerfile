@@ -29,11 +29,11 @@ FROM debian
 ENV DEBIAN_FRONTEND=noninteractive
 ENV HOME=/home/user
 
-# Create .Xauthority
-RUN touch $HOME/.Xauthority
-
 # Create the /home/user directory
 RUN mkdir -p $HOME
+
+# Create .Xauthority
+RUN touch $HOME/.Xauthority
 
 # Copy necessary file
 COPY --from=builder /root/noVNC /noVNC
@@ -82,4 +82,3 @@ EXPOSE 8900
 
 # Set the command to run when the container starts
 CMD ["/setup.sh"]
-
