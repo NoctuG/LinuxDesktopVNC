@@ -32,7 +32,7 @@ RUN apt update && \
     apt install -y --no-install-recommends \
         wine \
         qemu-kvm \
-        *zenhei* \
+        ttf-wqy-zenhei \
         dbus-x11 \
         curl \
         firefox-esr \
@@ -41,7 +41,7 @@ RUN apt update && \
         git \
         xfce4 \
         xfce4-terminal \
-        tightvncserver && \
+        tightvncserver \
         openssl && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
