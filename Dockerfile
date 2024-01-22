@@ -91,18 +91,4 @@ RUN RAND_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && 
     echo "VNC Password: $RAND_PASSWD"
 
 # Set XFCE to use a specific common font
-RUN echo "Xft.dpi: 96\nXft.antialias: true\nXft.hinting: true\nXft.rgba: rgb\nXft.hintstyle: hintslight\nXft.lcdfilter: lcddefault\nXft.autohint: 0\nXft.lcdfilter: lcdlight" > $HOME/.Xresources
-
-# Switch back to root user
-USER root
-
-# Generate a random password for root and write it to the log
-RUN ROOT_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && \
-    echo "root:$ROOT_PASSWD" | chpasswd && \
-    echo "Root Password: $ROOT_PASSWD"
-
-#Expose port
-EXPOSE 8900
-
-# Set the command to run when the container starts
-CMD ["/setup.sh"]
+RUN echo "Xft.dpi: 96\nXft.antialias: true\nXft.hinting: true\nXft.rgba: rgb\nXft.hintstyle: hintslight\nXft.lcdfilter: lcddefault\nXft.autohint: 0\nXft.lcdfilter: lcdlight" > $HOME/.
