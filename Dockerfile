@@ -66,8 +66,7 @@ whoami\n\
 cat $HOME/.vnc/passwd.log\n\
 cd $HOME\n\
 vncserver :2000 -geometry 1360x768\n\
-cd /noVNC\n\
-./utils/launch.sh  --vnc localhost:7900 --listen 8900' > /setup.sh && \
+/noVNC/utils/launch.sh  --vnc localhost:7900 --listen 8900' > /setup.sh && \
 chmod 755 /setup.sh
 
 #Expose port
