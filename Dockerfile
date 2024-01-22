@@ -52,6 +52,7 @@ RUN ls -alh /noVNC
 # Install required packages
 RUN apt update && \
     apt install -y --no-install-recommends \
+        python3 \
         wine \
         qemu-kvm \
         ttf-wqy-zenhei \
@@ -71,7 +72,7 @@ RUN apt update && \
 
 # Generate a random password and set it as VNC password
 RUN /bin/bash -c "mkdir -p $HOME/.vnc && \
-    RAND_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 8) && \
+    RAND_PASSWD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 12) && \
     echo $RAND_PASSWD | vncpasswd -f > $HOME/.vnc/passwd && \
     echo '/bin/env  MOZ_FAKE_NO_SANDBOX=1  dbus-launch xfce4-session'  > $HOME/.vnc/xstartup && \
     chmod 600 $HOME/.vnc/passwd && \
