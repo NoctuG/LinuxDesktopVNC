@@ -8,7 +8,7 @@ echo "Root password: $ROOT_PASSWORD"
 mkdir -p $HOME/.vnc
 
 # Start VNC server
-vncserver :0 -geometry 1360x768 -depth 24 -localhost no &
+vncserver :0 -geometry 1360x768 -depth 24
 
 # Start noVNC
 /noVNC/utils/novnc_proxy --vnc localhost:5900 --listen 8900
