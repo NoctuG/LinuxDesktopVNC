@@ -38,6 +38,7 @@ docker run -d -p 8900:8900 -e USER_PASSWORD=your_password -e ROOT_PASSWORD=your_
 
 这将设置用户和 root 的密码为 "your_password"。
 
+### 分辨率设置
 此外，你也可以在运行 Docker 容器时通过环境变量 `VNC_GEOMETRY` 来设置 VNC 的分辨率，不过在当前的 Dockerfile 和 setup.sh 中并没有这个选项，如果需要，你可以修改 setup.sh 脚本来支持这个功能。
 要设置 VNC 的分辨率，我们可以修改 `setup.sh` 脚本，使其接受一个环境变量 `VNC_GEOMETRY`，然后将这个环境变量用于设置 VNC 服务器的分辨率。则 `setup.sh`内容如下：
 
@@ -72,3 +73,20 @@ docker run -d -p 8900:8900 -e VNC_GEOMETRY=1920x1080 vnc-novnc:latest
 ```
 
 这将设置 VNC 的分辨率为 1920x1080。
+
+### 安装 oVNC 的依赖项 `numpy`
+需要在 Dockerfile 中添加一些命令来安装 Python 和 `numpy`:
+```bash
+# Install dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    x11vnc \
+    xvfb \
+    fluxbox \
+    wget \
+    python3 \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install numpy
+RUN pip3 install numpy
+````
