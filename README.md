@@ -39,3 +39,36 @@ docker run -d -p 8900:8900 -e USER_PASSWORD=your_password -e ROOT_PASSWORD=your_
 这将设置用户和 root 的密码为 "your_password"。
 
 此外，你也可以在运行 Docker 容器时通过环境变量 `VNC_GEOMETRY` 来设置 VNC 的分辨率，不过在当前的 Dockerfile 和 setup.sh 中并没有这个选项，如果需要，你可以修改 setup.sh 脚本来支持这个功能。
+要设置 VNC 的分辨率，我们可以修改 `setup.sh` 脚本，使其接受一个环境变量 `VNC_GEOMETRY`，然后将这个环境变量用于设置 VNC 服务器的分辨率。则 `setup.sh`内容如下：
+
+```bash
+#!/bin/bash
+
+# Print user and root passwords
+echo "User password: $USER_PASSWORD"
+echo "Root password: $ROOT_PASSWORD"
+
+# Ensure the VNC password directory exists
+mkdir -p $HOME/.vnc
+
+# Set default VNC geometry if not provided
+if [ -z "$VNC_GEOMETRY" ]; then
+  VNC_GEOMETRY="1360x768"
+fi
+
+# Start VNC server
+vncserver :0 -geometry $VNC_GEOMETRY -depth 24
+
+# Start noVNC
+/noVNC/utils/novnc_proxy --vnc localhost:5900 --listen 8900
+```
+
+在这个修改后的脚本中，我们首先检查 `VNC_GEOMETRY` 是否已经设置。如果没有设置，我们将其默认值设置为 "1360x768"。然后，我们在启动 VNC 服务器时使用这个值。
+
+然后，用户可以在运行 Docker 容器时设置 `VNC_GEOMETRY` 环境变量，以此来设置 VNC 的分辨率，例如：
+
+```bash
+docker run -d -p 8900:8900 -e VNC_GEOMETRY=1920x1080 vnc-novnc:latest
+```
+
+这将设置 VNC 的分辨率为 1920x1080。
