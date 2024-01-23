@@ -8,28 +8,19 @@ ENV HOME=/root
 # Update and Upgrade package list
 RUN apt update
 RUN apt upgrade -y
+
 # Install required packages
 RUN apt install -y --no-install-recommends \
         wget \
         openssl \
         ca-certificates \
         git \
-        build-essential \
-        libffi-dev \
-        libssl-dev \
-        python3-dev \
         xz-utils
 
 # Clean APT cache to reduce image size
 RUN apt clean && \
     update-ca-certificates && \
     rm -rf /var/lib/apt/lists/*
-
-# Install Python 3, pip and necessary libraries
-RUN apt-get update && apt-get install -y python3 python3-pip python3-dev build-essential libblas-dev liblapack-dev gfortran
-
-# Install Python’s numpy module
-RUN pip3 install numpy
 
 # Download and unzip noVNC
 WORKDIR $HOME
