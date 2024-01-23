@@ -74,7 +74,7 @@ docker run -d -p 8900:8900 -e VNC_GEOMETRY=1920x1080 vnc-novnc:latest
 
 这将设置 VNC 的分辨率为 1920x1080。
 
-### 安装 oVNC 的依赖项 `numpy`
+### 安装 noVNC 的依赖项 `numpy`
 需要在 Dockerfile 中添加一些命令来安装 Python 和 `numpy`:
 ```bash
 # Install dependencies
