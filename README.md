@@ -21,7 +21,7 @@ docker build -t vnc-novnc:latest .
 然后，你可以运行一个 Docker 容器，使用以下命令：
 
 ```bash
-docker run -d -p 8900:8900 vnc-novnc:latest
+docker run -d -p 8900:8900 -p 2000:2000 vnc-novnc:latest
 ```
 
 这将在后台运行一个 Docker 容器，并将容器的 8900 端口映射到主机的 8900 端口。
