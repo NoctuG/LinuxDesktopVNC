@@ -7,6 +7,10 @@ echo "Root password: $ROOT_PASSWORD"
 # Ensure the VNC password directory exists
 mkdir -p $HOME/.vnc
 
+# Set the user password for VNC
+echo $USER_PASSWORD | vncpasswd -f > $HOME/.vnc/passwd
+chmod 600 $HOME/.vnc/passwd
+
 # Start VNC server
 vncserver :0 -geometry 1360x768 -depth 24
 
